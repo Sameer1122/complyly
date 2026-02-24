@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -102,9 +103,7 @@ export default function LoginPage() {
       <header className="bg-white border-b border-[#E5EAF1]">
         <div className="max-w-[1180px] mx-auto px-6 h-16 flex items-center">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center">
-              <span className="text-white text-sm font-bold">C</span>
-            </div>
+            <Image src="/logo.webp" alt="Complyly" width={32} height={32} className="rounded-lg" />
             <span className="font-bold text-[#111827] text-lg">Complyly</span>
           </Link>
         </div>
@@ -114,9 +113,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md animate-fade-in-up">
           {/* Logo & title */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 rounded-xl bg-[#2563EB] flex items-center justify-center mb-5">
-              <span className="text-white text-xl font-bold">C</span>
-            </div>
+            <Image src="/logo.webp" alt="Complyly" width={48} height={48} className="rounded-xl mb-5" />
             <h1 className="text-2xl font-bold text-[#111827]">
               {step === "email" ? "Welcome back" : "Enter your code"}
             </h1>

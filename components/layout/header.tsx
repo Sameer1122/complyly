@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -14,9 +15,7 @@ export function Header() {
     <header className="bg-white border-b border-[#E5EAF1] sticky top-0 z-40">
       <div className="max-w-[1180px] mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center">
-            <span className="text-white text-sm font-bold">C</span>
-          </div>
+          <Image src="/logo.webp" alt="Complyly" width={32} height={32} className="rounded-lg" />
           <span className="font-bold text-[#111827] text-lg">Complyly</span>
         </Link>
         <nav className="flex items-center gap-1 sm:gap-2">

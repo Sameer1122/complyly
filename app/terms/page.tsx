@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/layout/footer";
 
@@ -8,9 +9,7 @@ export default function TermsPage() {
         <nav className="max-w-[1180px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center">
-                <span className="text-white text-sm font-bold">C</span>
-              </div>
+              <Image src="/logo.webp" alt="Complyly" width={32} height={32} className="rounded-lg" />
               <span className="text-xl font-semibold text-[#111827]">Complyly</span>
             </Link>
             <Link href="/" className="text-[#6B7280] hover:text-[#111827] text-sm font-medium transition-colors">

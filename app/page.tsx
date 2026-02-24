@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
+import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/layout/footer";
 
@@ -14,9 +15,7 @@ export default async function Home() {
         <nav className="max-w-[1180px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center">
-                <span className="text-white text-sm font-bold">C</span>
-              </div>
+              <Image src="/logo.webp" alt="Complyly" width={32} height={32} className="rounded-lg" />
               <span className="text-xl font-semibold text-[#111827]">Complyly</span>
             </Link>
             <div className="hidden md:flex items-center gap-6">
@@ -34,7 +33,7 @@ export default async function Home() {
       <main className="flex-1">
         {/* Hero */}
         <section
-          className="min-h-[600px] pt-20 pb-16"
+          className="min-h-[600px] pt-40 pb-16"
           style={{ background: "linear-gradient(180deg, #F8FBFF 0%, #FFFFFF 100%)" }}
         >
           <div className="max-w-[1180px] mx-auto px-6">
