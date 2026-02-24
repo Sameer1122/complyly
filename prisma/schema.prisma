@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── User ───────────────────────────────────────────────────────────────
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reports           Report[]
+  verificationCodes VerificationCode[]
+
+  @@map("users")
+}
+
+// ─── VerificationCode ───────────────────────────────────────────────────
+model VerificationCode {
+  id        String   @id @default(cuid())
+  code      String
+  email     String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email, code])
+  @@map("verification_codes")
+}
+
+// ─── Report ─────────────────────────────────────────────────────────────
+enum ReportStatus {
+  UPLOADED
+  PROCESSING
+  PREVIEW_READY
+  PAYMENT_PENDING
+  UNLOCKED
+  PDF_READY
+}
+
+model Report {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Document metadata
+  category String @default("Housing / Tenancy")
+  fileName String
+  fileUrl  String
+  fileType String // "pdf" | "docx"
+
+  // State machine
+  status ReportStatus @default(UPLOADED)
+
+  // AI analysis results
+  summary         String? @db.Text
+  riskScore       Int?
+  clauseAnalysis  Json?
+  recommendations Json?
+  redFlags        Json?
+  actionChecklist Json?
+  extractedText   String? @db.Text
+
+  // Payment
+  isUnlocked            Boolean  @default(false)
+  pricePaid             Decimal? @db.Decimal(10, 2)
+  stripeSessionId       String?  @unique
+  stripePaymentIntentId String?
+
+  // PDF
+  pdfUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("reports")
+}
