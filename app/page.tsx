@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/layout/footer";
+import { InfoBanner } from "@/components/info-banner";
 
 export default async function Home() {
   const session = await getSession();
@@ -10,6 +11,9 @@ export default async function Home() {
 
   return (
     <div className="min-h-svh flex flex-col bg-white">
+      {/* Info Banner */}
+      <InfoBanner />
+
       {/* Header */}
       <header className="bg-white border-b border-[#E5EAF1] sticky top-0 z-40">
         <nav className="max-w-[1180px] mx-auto px-6 py-4">
@@ -33,7 +37,7 @@ export default async function Home() {
       <main className="flex-1">
         {/* Hero */}
         <section
-          className="min-h-[600px] pt-40 pb-16"
+          className="min-h-[600px] pt-20 pb-16"
           style={{ background: "linear-gradient(180deg, #F8FBFF 0%, #FFFFFF 100%)" }}
         >
           <div className="max-w-[1180px] mx-auto px-6">
