@@ -7,8 +7,11 @@ import { sendCodeSchema } from "@/lib/validations";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log("[send-code] Request body:", body);
+
     const parsed = sendCodeSchema.safeParse(body);
     if (!parsed.success) {
+      console.log("[send-code] Validation failed:", parsed.error.flatten());
       return NextResponse.json(
         { error: "Please enter a valid email address" },
         { status: 400 }
@@ -16,6 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { email } = parsed.data;
+    console.log("[send-code] Email:", email);
 
     // Rate limit: max 3 codes per email per 15 minutes
     const recentCodes = await prisma.verificationCode.count({
@@ -24,7 +28,10 @@ export async function POST(request: NextRequest) {
         createdAt: { gt: new Date(Date.now() - 15 * 60 * 1000) },
       },
     });
+    console.log("[send-code] Recent codes count:", recentCodes);
+
     if (recentCodes >= 3) {
+      console.log("[send-code] Rate limited");
       return NextResponse.json(
         { error: "Too many attempts. Please try again later." },
         { status: 429 }
@@ -32,6 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     const code = crypto.randomInt(100000, 999999).toString();
+    console.log("[send-code] Generated code:", code);
 
     // Upsert user (create if first time)
     const user = await prisma.user.upsert({
@@ -39,15 +47,17 @@ export async function POST(request: NextRequest) {
       update: {},
       create: { email },
     });
+    console.log("[send-code] User upserted:", { id: user.id, email: user.email });
 
     // Invalidate any existing unused codes for this email
-    await prisma.verificationCode.updateMany({
+    const invalidated = await prisma.verificationCode.updateMany({
       where: { email, used: false },
       data: { used: true },
     });
+    console.log("[send-code] Invalidated old codes:", invalidated.count);
 
     // Create new code (10 minute expiry)
-    await prisma.verificationCode.create({
+    const verification = await prisma.verificationCode.create({
       data: {
         email,
         userId: user.id,
@@ -55,10 +65,12 @@ export async function POST(request: NextRequest) {
         expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       },
     });
+    console.log("[send-code] Verification created:", { id: verification.id, expiresAt: verification.expiresAt });
 
     // Send via Resend
-    await getResend().emails.send({
-      from: "Complyly <noreply@complyly.co.uk>",
+    console.log("[send-code] Sending email via Resend to:", email);
+    const emailResult = await getResend().emails.send({
+      from: "Complyly <onboarding@resend.dev>",
       to: email,
       subject: "Your Complyly login code",
       html: `
@@ -73,10 +85,21 @@ export async function POST(request: NextRequest) {
         </div>
       `,
     });
+    console.log("[send-code] Resend response:", JSON.stringify(emailResult, null, 2));
 
+    console.log("[send-code] Success — code sent to", email);
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("[send-code] Error:", error);
+  } catch (error: unknown) {
+    const err = error as Record<string, unknown>;
+    console.error("[send-code] Error:", {
+      message: err?.message,
+      type: err?.type,
+      error: err?.error,
+      code: err?.code,
+      cause: err?.cause,
+      stack: (error instanceof Error) ? error.stack : undefined,
+      raw: String(error),
+    });
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 }
