@@ -7,6 +7,7 @@ import { buildAnalysisPrompt } from "@/lib/analysis-prompt";
 import { analyseReportSchema } from "@/lib/validations";
 import type { AnalysisResult } from "@/lib/report-types";
 
+
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
@@ -35,8 +36,15 @@ export async function POST(request: NextRequest) {
   });
 
   try {
-    // 1. Fetch file from Vercel Blob
-    const fileResponse = await fetch(report.fileUrl);
+    // 1. Fetch file from Vercel Blob (private store requires auth token)
+    const fileResponse = await fetch(report.fileUrl, {
+      headers: {
+        Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+      },
+    });
+    if (!fileResponse.ok) {
+      throw new Error(`Failed to download file: ${fileResponse.status}`);
+    }
     const arrayBuffer = await fileResponse.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 

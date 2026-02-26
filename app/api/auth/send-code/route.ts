@@ -67,25 +67,30 @@ export async function POST(request: NextRequest) {
     });
     console.log("[send-code] Verification created:", { id: verification.id, expiresAt: verification.expiresAt });
 
-    // Send via Resend
-    console.log("[send-code] Sending email via Resend to:", email);
-    const emailResult = await getResend().emails.send({
-      from: "Complyly <onboarding@resend.dev>",
-      to: email,
-      subject: "Your Complyly login code",
-      html: `
-        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
-          <h2 style="color: #AD6DF4; margin-bottom: 8px;">Complyly</h2>
-          <p style="color: #6b7280; margin-bottom: 24px;">Understand Where You Stand</p>
-          <p>Your verification code is:</p>
-          <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; text-align: center; margin: 16px 0;">
-            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #171717;">${code}</span>
+    // In development, skip sending the email — grab the code from the console
+    if (process.env.NODE_ENV === "development") {
+      console.log("[send-code] DEV MODE — skipping email. Use code:", code);
+    } else {
+      // Send via Resend
+      console.log("[send-code] Sending email via Resend to:", email);
+      const emailResult = await getResend().emails.send({
+        from: "Complyly <onboarding@resend.dev>",
+        to: email,
+        subject: "Your Complyly login code",
+        html: `
+          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+            <h2 style="color: #AD6DF4; margin-bottom: 8px;">Complyly</h2>
+            <p style="color: #6b7280; margin-bottom: 24px;">Understand Where You Stand</p>
+            <p>Your verification code is:</p>
+            <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; text-align: center; margin: 16px 0;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #171717;">${code}</span>
+            </div>
+            <p style="color: #6b7280; font-size: 14px;">This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
           </div>
-          <p style="color: #6b7280; font-size: 14px;">This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
-        </div>
-      `,
-    });
-    console.log("[send-code] Resend response:", JSON.stringify(emailResult, null, 2));
+        `,
+      });
+      console.log("[send-code] Resend response:", JSON.stringify(emailResult, null, 2));
+    }
 
     console.log("[send-code] Success — code sent to", email);
     return NextResponse.json({ success: true });

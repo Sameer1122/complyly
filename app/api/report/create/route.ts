@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const blob = await put(
       `documents/${session.userId}/${Date.now()}-${file.name}`,
       file,
-      { access: "public" }
+      { access: "private" }
     );
 
     // Create report record
